@@ -1,118 +1,92 @@
-import os
-
-html_content = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Operadores | Futuro da Lógica</title>
+    <title>Operadores de Sistema | Console Global</title>
     <style>
         :root {
-            --bg-body: #05070a;
-            --bg-card: rgba(30, 41, 59, 0.5);
-            --neon-blue: #00f2ff;
-            --neon-purple: #7000ff;
-            --text-main: #e2e8f0;
-            --text-dim: #94a3b8;
-            --border-glow: rgba(0, 242, 255, 0.2);
+            --bg: #050508;
+            --card-bg: rgba(10, 15, 25, 0.9);
+            --cyan: #00f2ff;
+            --purple: #7000ff;
+            --text: #c3ced9;
+            --border: rgba(0, 242, 255, 0.2);
+            --code-bg: #000000;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Fundo com efeito de grade sutil */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, sans-serif;
             background-image: 
-                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -1;
+                linear-gradient(rgba(0, 242, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            padding: 40px 20px;
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1300px;
             margin: 0 auto;
-            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+        }
+
+        @media (max-width: 1000px) {
+            .container { grid-template-columns: 1fr; }
+            #info-panel { position: relative !important; top: 0 !important; }
         }
 
         header {
+            grid-column: 1 / -1;
             text-align: center;
             margin-bottom: 60px;
-            position: relative;
         }
 
         header h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
+            color: var(--cyan);
             text-transform: uppercase;
-            letter-spacing: 4px;
-            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            letter-spacing: 8px;
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
         }
 
-        header p {
-            color: var(--text-dim);
-            font-weight: 300;
-        }
-
+        /* --- Estilo das Tabelas --- */
         .section-card {
-            background: var(--bg-card);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 25px;
+            margin-bottom: 40px;
             backdrop-filter: blur(10px);
-            border: 1px solid var(--border-glow);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
-            transition: all 0.3s ease;
-        }
-
-        .section-card:hover {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
-            transform: translateY(-5px);
         }
 
         h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            color: var(--neon-blue);
-        }
-
-        h2::before {
-            content: "//";
-            margin-right: 10px;
-            color: var(--neon-purple);
+            color: var(--cyan);
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            border-left: 5px solid var(--purple);
+            padding-left: 15px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
         }
 
         th {
             text-align: left;
-            color: var(--neon-purple);
-            font-size: 0.9rem;
+            color: var(--purple);
+            font-size: 0.75rem;
             text-transform: uppercase;
             padding: 12px;
-            border-bottom: 1px solid var(--border-glow);
+            border-bottom: 1px solid var(--border);
         }
 
         td {
@@ -120,142 +94,221 @@ html_content = """<!DOCTYPE html>
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        code {
-            font-family: 'Fira Code', 'Courier New', monospace;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 4px 8px;
+        /* --- Botões de Operadores --- */
+        .op-btn {
+            background: rgba(0, 242, 255, 0.05);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            font-family: 'Consolas', monospace;
+            padding: 10px 18px;
             border-radius: 4px;
-            color: var(--neon-blue);
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            min-width: 70px;
+            text-align: center;
         }
 
-        .status-badge {
+        .op-btn:hover {
+            background: var(--cyan);
+            color: var(--bg);
+            box-shadow: 0 0 15px var(--cyan);
+        }
+
+        .op-btn.active {
+            background: var(--purple);
+            border-color: var(--purple);
+            color: white;
+            box-shadow: 0 0 25px var(--purple);
+        }
+
+        /* --- Painel de Informações (HUD) --- */
+        #info-panel {
+            position: sticky;
+            top: 40px;
+            height: fit-content;
+            background: #0a0a0f;
+            border: 2px solid var(--purple);
+            padding: 30px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            border-radius: 2px;
+        }
+
+        .hud-header {
+            color: var(--purple);
+            font-weight: bold;
+            text-transform: uppercase;
             font-size: 0.8rem;
-            padding: 2px 8px;
-            border-radius: 20px;
-            background: rgba(112, 0, 255, 0.2);
-            color: #d8b4fe;
-            border: 1px solid var(--neon-purple);
+            margin-bottom: 20px;
+            display: block;
+            border-bottom: 1px solid var(--purple);
+        }
+
+        #hud-content h3 { color: var(--cyan); margin-bottom: 12px; font-size: 1.5rem; }
+        #hud-content p { font-size: 1rem; margin-bottom: 25px; color: var(--text); }
+
+        pre {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 2px;
+            border-left: 4px solid var(--cyan);
+            color: #a8ffb3;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
         }
 
         footer {
+            grid-column: 1 / -1;
             text-align: center;
-            margin-top: 50px;
-            color: var(--text-dim);
-            font-size: 0.8rem;
-            letter-spacing: 1px;
+            padding: 60px;
+            opacity: 0.4;
+            font-size: 0.75rem;
+            letter-spacing: 4px;
         }
-
-        /* Animação de entrada */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section-card {
-            animation: fadeIn 0.6s ease forwards;
-        }
-
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>System.Operators</h1>
-        <p>Documentação Técnica de Lógica de Programação</p>
+        <h1>Operadores de Sistema</h1>
+        <p>CONSOLE_DE_DOCUMENTAÇÃO_GLOBAL_V3.0</p>
     </header>
 
-    <section class="section-card">
-        <h2>Aritméticos</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Símbolo</th>
-                    <th>Operação</th>
-                    <th>Exemplo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>+</code></td>
-                    <td>Adição</td>
-                    <td><code>x + y</code></td>
-                </tr>
-                <tr>
-                    <td><code>-</code></td>
-                    <td>Subtração</td>
-                    <td><code>x - y</code></td>
-                </tr>
-                <tr>
-                    <td><code>*</code></td>
-                    <td>Multiplicação</td>
-                    <td><code>x * y</code></td>
-                </tr>
-                <tr>
-                    <td><code>/</code></td>
-                    <td>Divisão</td>
-                    <td><code>x / y</code></td>
-                </tr>
-                <tr>
-                    <td><code>%</code></td>
-                    <td>Módulo</td>
-                    <td><code>10 % 3 <span style="color:var(--text-dim)">// 1</span></code></td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+    <main>
+        <!-- Aritméticos -->
+        <section class="section-card">
+            <h2>Aritméticos</h2>
+            <table>
+                <thead><tr><th>Op</th><th>Função</th></tr></thead>
+                <tbody>
+                    <tr><td><button class="op-btn" data-op="+">+</button></td><td>Adição / Concatenação</td></tr>
+                    <tr><td><button class="op-btn" data-op="-">-</button></td><td>Subtração</td></tr>
+                    <tr><td><button class="op-btn" data-op="*">*</button></td><td>Multiplicação</td></tr>
+                    <tr><td><button class="op-btn" data-op="/">/</button></td><td>Divisão</td></tr>
+                    <tr><td><button class="op-btn" data-op="%">%</button></td><td>Módulo (Resto)</td></tr>
+                    <tr><td><button class="op-btn" data-op="**">**</button></td><td>Exponenciação</td></tr>
+                </tbody>
+            </table>
+        </section>
 
-    <section class="section-card">
-        <h2>Comparação</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Símbolo</th>
-                    <th>Relação</th>
-                    <th>Retorno</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>==</code></td>
-                    <td>Igualdade</td>
-                    <td><span class="status-boolean">Boolean</span></td>
-                </tr>
-                <tr>
-                    <td><code>!=</code></td>
-                    <td>Diferença</td>
-                    <td><span class="status-boolean">Boolean</span></td>
-                </tr>
-                <tr>
-                    <td><code>&gt;</code></td>
-                    <td>Maior que</td>
-                    <td><span class="status-boolean">Boolean</span></td>
-                </tr>
-                <tr>
-                    <td><code>&lt;=</code></td>
-                    <td>Menor ou igual</td>
-                    <td><span class="status-boolean">Boolean</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+        <!-- Comparação -->
+        <section class="section-card">
+            <h2>Comparação</h2>
+            <table>
+                <thead><tr><th>Op</th><th>Função</th></tr></thead>
+                <tbody>
+                    <tr><td><button class="op-btn" data-op="==">==</button></td><td>Igualdade de Valor</td></tr>
+                    <tr><td><button class="op-btn" data-op="===">===</button></td><td>Igualdade Estrita (Tipo)</td></tr>
+                    <tr><td><button class="op-btn" data-op="!=">!=</button></td><td>Diferença</td></tr>
+                    <tr><td><button class="op-btn" data-op=">">></button></td><td>Maior que</td></tr>
+                    <tr><td><button class="op-btn" data-op="<"><</button></td><td>Menor que</td></tr>
+                    <tr><td><button class="op-btn" data-op=">=">>=</button></td><td>Maior ou Igual</td></tr>
+                </tbody>
+            </table>
+        </section>
 
-    <section class="section-card">
-        <h2>Lógicos</h2>
-        <div style="display: grid; gap: 15px; margin-top: 10px;">
-            <p><strong>AND <code>(&amp;&amp;)</code>:</strong> Verdadeiro apenas se todas as condições forem <code>true</code>.</p>
-            <p><strong>OR <code>(||)</code>:</strong> Verdadeiro se ao menos uma condição for <code>true</code>.</p>
-            <p><strong>NOT <code>(!)</code>:</strong> Inverte o estado lógico atual.</p>
+        <!-- Lógicos -->
+        <section class="section-card">
+            <h2>Lógicos & Nullish</h2>
+            <table>
+                <thead><tr><th>Op</th><th>Função</th></tr></thead>
+                <tbody>
+                    <tr><td><button class="op-btn" data-op="&&">&&</button></td><td>AND Lógico</td></tr>
+                    <tr><td><button class="op-btn" data-op="||">||</button></td><td>OR Lógico</td></tr>
+                    <tr><td><button class="op-btn" data-op="!">!</button></td><td>NOT Lógico</td></tr>
+                    <tr><td><button class="op-btn" data-op="??">??</button></td><td>Nullish Coalescing</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Atribuição -->
+        <section class="section-card">
+            <h2>Atribuição Composta</h2>
+            <table>
+                <thead><tr><th>Op</th><th>Função</th></tr></thead>
+                <tbody>
+                    <tr><td><button class="op-btn" data-op="=">=</button></td><td>Atribuição Simples</td></tr>
+                    <tr><td><button class="op-btn" data-op="+=">+=</button></td><td>Soma e Atribui</td></tr>
+                    <tr><td><button class="op-btn" data-op="-=">-=</button></td><td>Subtrai e Atribui</td></tr>
+                    <tr><td><button class="op-btn" data-op="*=">*=</button></td><td>Multiplica e Atribui</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Bitwise -->
+        <section class="section-card">
+            <h2>Bitwise (Binários)</h2>
+            <table>
+                <thead><tr><th>Op</th><th>Função</th></tr></thead>
+                <tbody>
+                    <tr><td><button class="op-btn" data-op="&">&</button></td><td>AND Binário</td></tr>
+                    <tr><td><button class="op-btn" data-op="|">|</button></td><td>OR Binário</td></tr>
+                    <tr><td><button class="op-btn" data-op="^">^</button></td><td>XOR Binário</td></tr>
+                    <tr><td><button class="op-btn" data-op="<<"><<</button></td><td>Shift Esquerda</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <aside id="info-panel">
+        <span class="hud-header">// SISTEMA_PRONTO_PARA_INPUT</span>
+        <div id="hud-content">
+            <p>Selecione um protocolo na tabela para processar os dados de exemplo no terminal...</p>
         </div>
-    </section>
+    </aside>
 
-    <footer>
-        <p>&copy; 2026 TERMINAL_OPERATORS // BY GEMINI</p>
-    </footer>
+    <footer>SISTEMA_TERMINAL_CORE // 2026 // ACESSO_TOTAL</footer>
 </div>
 
-</body>
-</html>"""
+<script>
+    const data = {
+        "+": { titulo: "Adição (+)", desc: "Soma números ou une strings.", ex: "10 + 5 // 15\n'Dev' + 'Ops' // 'DevOps'" },
+        "-": { titulo: "Subtração (-)", desc: "Subtrai o segundo valor do primeiro.", ex: "100 - 45 // 55" },
+        "*": { titulo: "Multiplicação (*)", desc: "Calcula o produto de dois números.", ex: "7 * 8 // 56" },
+        "/": { titulo: "Divisão (/)", desc: "Divide o primeiro valor pelo segundo.", ex: "20 / 4 // 5" },
+        "%": { titulo: "Módulo (%)", desc: "Retorna o resto de uma divisão.", ex: "10 % 3 // 1" },
+        "**": { titulo: "Exponenciação (**)", desc: "Eleva o primeiro número à potência do segundo.", ex: "2 ** 3 // 8" },
+        "==": { titulo: "Igualdade (==)", desc: "Compara valores convertendo os tipos.", ex: "5 == '5' // true" },
+        "===": { titulo: "Igualdade Estrita (===)", desc: "Compara valor e tipo. Mais seguro.", ex: "5 === '5' // false" },
+        "!=": { titulo: "Diferente (!=)", desc: "Verifica se os valores não são iguais.", ex: "10 != 5 // true" },
+        ">": { titulo: "Maior que (>)", desc: "Verifica se o esquerdo é maior que o direito.", ex: "10 > 5 // true" },
+        "<": { titulo: "Menor que (<)", desc: "Verifica se o esquerdo é menor que o direito.", ex: "3 < 8 // true" },
+        ">=": { titulo: "Maior ou Igual (>=)", desc: "Verifica se é maior ou igual.", ex: "10 >= 10 // true" },
+        "&&": { titulo: "AND (&&)", desc: "Verdadeiro se ambos forem true.", ex: "true && true // true" },
+        "||": { titulo: "OR (||)", desc: "Verdadeiro se um deles for true.", ex: "true || false // true" },
+        "!": { titulo: "NOT (!)", desc: "Inverte o estado lógico.", ex: "!true // false" },
+        "??": { titulo: "Nullish Coalescing (??)", desc: "Retorna o lado direito se o esquerdo for null/undefined.", ex: "let x = null ?? 'padrão'; // 'padrão'" },
+        "=": { titulo: "Atribuição (=)", desc: "Define o valor da variável.", ex: "let x = 10;" },
+        "+=": { titulo: "Soma e Atribui (+=)", desc: "Soma ao valor atual e redefine.", ex: "x += 5; // x = x + 5" },
+        "-=": { titulo: "Subtrai e Atribui (-=)", desc: "Subtrai e redefine.", ex: "x -= 2; // x = x - 2" },
+        "*=": { titulo: "Multiplica e Atribui (*=)", desc: "Multiplica e redefine.", ex: "x *= 3; // x = x * 3" },
+        "&": { titulo: "AND Binário (&)", desc: "Compara bits e retorna 1 onde ambos são 1.", ex: "5 & 1 // 1 (0101 & 0001 = 0001)" },
+        "|": { titulo: "OR Binário (|)", desc: "Retorna 1 onde pelo menos um bit é 1.", ex: "5 | 1 // 5 (0101 | 0001 = 0101)" },
+        "^": { titulo: "XOR Binário (^)", desc: "Retorna 1 onde os bits são diferentes.", ex: "5 ^ 1 // 4 (0101 ^ 0001 = 0100)" },
+        "<<": { titulo: "Shift Left (<<)", desc: "Desloca os bits para a esquerda.", ex: "5 << 1 // 10 (1010)" }
+    };
 
-with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_content)
+    const buttons = document.querySelectorAll('.op-btn');
+    const hud = document.getElementById('hud-content');
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const op = btn.getAttribute('data-op');
+            const info = data[op];
+
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            hud.innerHTML = `
+                <h3>${info.titulo}</h3>
+                <p>${info.desc}</p>
+                <pre><code>${info.ex}</code></pre>
+            `;
+        });
+    });
+</script>
+
+</body>
+</html>
